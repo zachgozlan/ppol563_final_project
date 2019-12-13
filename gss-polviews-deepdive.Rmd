@@ -1,5 +1,10 @@
 ---
 title: "gss-polviews-dive"
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 author: "Zach Gozlan"
 date: "December 13, 2019"
 output: html_document
@@ -68,32 +73,4 @@ ggplot(data=gss_means, aes(x=age, y=conrinc_median, colour=as.factor(is2018))) +
 test_gen <- subset(gss_means, birth_cohort==1950)
 ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) +
   geom_line()
-```
-
-```{r}
-#https://stackoverflow.com/questions/32543176/highlight-areas-within-certain-x-range-in-ggplot2
-
-test_gen <- subset(gss_means, birth_cohort==1950)
-
-inds <- diff(c(0, v))
-start <- dat$dates[inds == 1]
-end <- dat$dates[inds == -1]
-if (length(start) > length(end)) end <- c(end, tail(dat$dates, 1))
-
-rects <- data.frame(start=start, end=end, group=seq_along(start))
-
-ggplot(data=test_gen, aes(x=happy_wmean, y=polviews_wmean, color=as.factor(birth_cohort))) +
-  geom_line() +
-  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(test_gen$polviews_wmean),
-                ymax=max(test_gen$polviews_wmean), group=group), color="transparent", fill="orange", alpha=0.3)
-```
-
-```{r}
-## Determine highlighted regions
-v <- rep(0, 100)
-v[c(5:20, 30:35, 90:100)] <- 1
-
-## Get the start and end points for highlighted regions
-inds <- diff(c(0, v))
-inds
 ```
