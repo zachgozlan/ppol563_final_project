@@ -1,0 +1,99 @@
+---
+title: "gss-polviews-dive"
+author: "Zach Gozlan"
+date: "December 13, 2019"
+output: html_document
+---
+
+This is version #0, testing github pages functionality with r studio
+
+```{r}
+library(ggplot2)
+library(plotly)
+require(tidyverse)
+require(dplyr)
+library(foreign)
+library(haven)
+library(plyr)
+```
+
+```{r}
+gss_means = read_csv('birthcohort_means.csv')
+gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop this too - sparse
+head(gss_means)
+```
+
+```{r}
+polviews_survey_yr <- ggplot(data=gss_means[gss_means$survey_yr > 1984,], aes(x=age, y=dwelown_wmean, colour=as.factor(birth_cohort))) +
+  geom_line()
+
+#ggsave('polviews_survey_yr_test1.png', plot = polviews_survey_yr, width = 20, height = 6)
+
+ggplotly(polviews_survey_yr)
+```
+
+```{r}
+polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
+  geom_tile() + scale_fill_gradient(low="orange", high="blue") + theme(axis.text.x = element_text(angle=45))
+
+#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
+
+ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
+```
+
+```{r}
+polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", age, "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
+  geom_tile() + theme(axis.text.x = element_text(angle=45))
+
+#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
+
+ggplotly(polviews_married, tooltip=c("x", "y", "text"))
+```
+
+```{r}
+polviews_age <- ggplot(data=gss_means, aes(x=age, y=as.factor(survey_yr), fill=conrinc_median, text = paste("Sample Size:", counts, "\n Age:", age))) +
+  geom_tile() + scale_fill_gradient(low="orange", high="blue") + theme(axis.text.x = element_text(angle=45))
+
+#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
+
+ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
+```
+
+```{r}
+ggplot(data=gss_means, aes(x=age, y=conrinc_median, colour=as.factor(is2018))) +
+  geom_point()
+```
+
+```{r}
+test_gen <- subset(gss_means, birth_cohort==1950)
+ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) +
+  geom_line()
+```
+
+```{r}
+#https://stackoverflow.com/questions/32543176/highlight-areas-within-certain-x-range-in-ggplot2
+
+test_gen <- subset(gss_means, birth_cohort==1950)
+
+inds <- diff(c(0, v))
+start <- dat$dates[inds == 1]
+end <- dat$dates[inds == -1]
+if (length(start) > length(end)) end <- c(end, tail(dat$dates, 1))
+
+rects <- data.frame(start=start, end=end, group=seq_along(start))
+
+ggplot(data=test_gen, aes(x=happy_wmean, y=polviews_wmean, color=as.factor(birth_cohort))) +
+  geom_line() +
+  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(test_gen$polviews_wmean),
+                ymax=max(test_gen$polviews_wmean), group=group), color="transparent", fill="orange", alpha=0.3)
+```
+
+```{r}
+## Determine highlighted regions
+v <- rep(0, 100)
+v[c(5:20, 30:35, 90:100)] <- 1
+
+## Get the start and end points for highlighted regions
+inds <- diff(c(0, v))
+inds
+```
