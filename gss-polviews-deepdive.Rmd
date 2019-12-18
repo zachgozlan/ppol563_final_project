@@ -12,7 +12,7 @@ output:
     theme: readable #from bootswatch
 ---
 
-This is version #1, beginning to draft functionality
+The General Social Survey is not a panel survey. However, it is both a very long-running with a large and diverse set of participants, and while the survey contains nearly no personally identifying information some basic demographic information is included in the data. Because both “age of respondent” and “year of survey” are provided, some basic manipulation of the data gets it to a place where we can use <b>birth year</b> as a unit of analysis.
 
 ```{r, include = FALSE, message=FALSE}
 library(ggplot2)
@@ -23,7 +23,9 @@ library(foreign)
 library(haven)
 library(plyr)
 library(heatmaply)
+library(reticulate)
 
+knitr::knit_engines$set(python = reticulate::eng_python)
 ```
 
 ```{r, include = FALSE, message=FALSE}
@@ -36,6 +38,21 @@ library(heatmaply)
 #gss_finalproj <- gss[myvars2]
 #write.csv(gss_finalproj, 'C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\fp_gss_1.csv')
 ```
+
+For the sake of sample size, 
+
+![A screenshot of an excel sheet of sample sizes.](images/included_in_survey.PNG)
+
+
+```{python}
+import pandas as pd
+gss_frame_1 = pd.read_csv('fp_gss_1.csv')
+gss_frame_1['year_of_birth'] = gss_frame_1.year - gss_frame_1.age
+gss_frame_1['yearborn_binned5'] = (gss_frame_1.year_of_birth // 5) * 5 #rounds year born to nearest 5-year interval
+print(pd.crosstab(gss_frame_1.yearborn_binned5, gss_frame_1.year))
+```
+
+
 
 ```{r, include = FALSE, message=FALSE}
 gss_means = read_csv('birthcohort_means.csv') #the recoded data set, imported back in for presentation
@@ -52,7 +69,7 @@ ggplotly(polviews_survey_yr)  %>%
   layout(title = list(text = paste0('Do we get more conservative as we get older?',
                                     '<br>',
                                     '<sup>',
-                                    'Political views of birth cohorts in the GS at available range of ages',
+                                    'Political views of birth cohorts in the GSS at available range of ages',
                                     '</sup>')))
 ```
 
