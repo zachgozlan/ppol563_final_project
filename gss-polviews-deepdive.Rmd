@@ -12,7 +12,7 @@ output: html_document
 
 This is version #1, beginning to draft functionality
 
-```{r, include = FALSE}
+```{r, include = FALSE, message=FALSE}
 library(ggplot2)
 library(plotly)
 require(tidyverse)
@@ -20,25 +20,27 @@ require(dplyr)
 library(foreign)
 library(haven)
 library(plyr)
+library(heatmaply)
+
 ```
 
-```{r}
-gss <- read_csv('C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\full_gss.csv') #this is a version of the full gss data set that was converted to csv
+```{r, include = FALSE, message=FALSE}
+#gss <- read_csv('C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\full_gss.csv') #this is a version of the full gss data set that was converted to csv
 ```
 
-```{r}
+```{r, include = FALSE, message=FALSE}
 #variables that were needed from this project were pulled out, exported, and sent to python for easy manipulation
-myvars2 <- c("year", "age", "sex", "polviews", "happy", "conrinc", "wtssall", "natrace", "life", "trust", "dwelown", "marital") #for final project
-gss_finalproj <- gss[myvars2]
-write.csv(gss_finalproj, 'C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\fp_gss_1.csv')
+#myvars2 <- c("year", "age", "sex", "polviews", "happy", "conrinc", "wtssall", "natrace", "life", "trust", "dwelown", "marital") #for final project
+#gss_finalproj <- gss[myvars2]
+#write.csv(gss_finalproj, 'C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\fp_gss_1.csv')
 ```
 
-```{r}
+```{r, include = FALSE, message=FALSE}
 gss_means = read_csv('birthcohort_means.csv') #the recoded data set, imported back in for presentation
 gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop this year - sparse data
 ```
 
-```{r}
+```{r, , echo=FALSE, message=FALSE}
 polviews_survey_yr <- ggplot(data=gss_means[gss_means$survey_yr > 1984,], aes(x=age, y=dwelown_wmean, colour=as.factor(birth_cohort))) +
   geom_line()
 
@@ -47,7 +49,7 @@ polviews_survey_yr <- ggplot(data=gss_means[gss_means$survey_yr > 1984,], aes(x=
 ggplotly(polviews_survey_yr)
 ```
 
-```{r}
+```{r, , echo=FALSE, message=FALSE, warning=FALSE}
 polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
   geom_tile() + scale_fill_gradient(low="orange", high="blue4") + theme(axis.text.x = element_text(angle=45))
 
@@ -57,7 +59,7 @@ ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
 ```
 
 
-```{r}
+```{r, , echo=FALSE, message=FALSE}
 polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", age, "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
   geom_tile() + theme(axis.text.x = element_text(angle=45))
 
@@ -66,7 +68,7 @@ polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_c
 ggplotly(polviews_married, tooltip=c("x", "y", "text"))
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(dwelown_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", age, "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
   geom_tile() + theme(axis.text.x = element_text(angle=45))
 
@@ -75,7 +77,7 @@ polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as
 ggplotly(polviews_married, tooltip=c("x", "y", "text"))
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
   geom_tile() + scale_fill_gradient(low="orange", high="blue4") + theme(axis.text.x = element_text(angle=45))
 
@@ -84,12 +86,12 @@ polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=p
 ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 ggplot(data=gss_means, aes(x=age, y=conrinc_median, colour=as.factor(is2018))) +
   geom_point()
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 test_gen <- subset(gss_means, relative_youth==1)
 ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) + geom_line()
 ```
