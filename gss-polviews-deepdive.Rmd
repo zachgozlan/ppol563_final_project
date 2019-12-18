@@ -7,7 +7,9 @@ knit: (function(input_file, encoding) {
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 author: "Zach Gozlan"
 date: "December 13, 2019"
-output: html_document
+output: 
+  html_document:
+    theme: readable #from bootswatch
 ---
 
 This is version #1, beginning to draft functionality
@@ -41,12 +43,17 @@ gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop thi
 ```
 
 ```{r, , echo=FALSE, message=FALSE}
-polviews_survey_yr <- ggplot(data=gss_means[gss_means$survey_yr > 1984,], aes(x=age, y=dwelown_wmean, colour=as.factor(birth_cohort))) +
-  geom_line()
+polviews_survey_yr <- ggplot(data=gss_means[gss_means$survey_yr > 1984,], aes(x=age, y=polviews_wmean, colour=as.factor(birth_cohort))) +
+  geom_line() + labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages")
 
 #ggsave('polviews_survey_yr_test1.png', plot = polviews_survey_yr, width = 20, height = 6)
 
-ggplotly(polviews_survey_yr)
+ggplotly(polviews_survey_yr)  %>%
+  layout(title = list(text = paste0('Do we get more conservative as we get older?',
+                                    '<br>',
+                                    '<sup>',
+                                    'Political views of birth cohorts in the GS at available range of ages',
+                                    '</sup>')))
 ```
 
 ```{r, , echo=FALSE, message=FALSE, warning=FALSE}
@@ -90,6 +97,10 @@ ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
 ggplot(data=gss_means, aes(x=age, y=conrinc_median, colour=as.factor(is2018))) +
   geom_point()
 ```
+
+<p style="font-family: times, serif; font-size:11pt; font-style:italic">
+    test of html formatting
+</p>
 
 ```{r, echo=FALSE, message=FALSE}
 test_gen <- subset(gss_means, relative_youth==1)
