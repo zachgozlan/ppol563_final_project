@@ -10,9 +10,9 @@ date: "December 13, 2019"
 output: html_document
 ---
 
-This is version #0, testing github pages functionality with r studio
+This is version #1, beginning to draft functionality
 
-```{r}
+```{r, include = FALSE}
 library(ggplot2)
 library(plotly)
 require(tidyverse)
@@ -23,9 +23,19 @@ library(plyr)
 ```
 
 ```{r}
-gss_means = read_csv('birthcohort_means.csv')
-gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop this too - sparse
-head(gss_means)
+gss <- read_csv('C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\full_gss.csv') #this is a version of the full gss data set that was converted to csv
+```
+
+```{r}
+#variables that were needed from this project were pulled out, exported, and sent to python for easy manipulation
+myvars2 <- c("year", "age", "sex", "polviews", "happy", "conrinc", "wtssall", "natrace", "life", "trust", "dwelown", "marital") #for final project
+gss_finalproj <- gss[myvars2]
+write.csv(gss_finalproj, 'C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\fp_gss_1.csv')
+```
+
+```{r}
+gss_means = read_csv('birthcohort_means.csv') #the recoded data set, imported back in for presentation
+gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop this year - sparse data
 ```
 
 ```{r}
@@ -39,12 +49,13 @@ ggplotly(polviews_survey_yr)
 
 ```{r}
 polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
-  geom_tile() + scale_fill_gradient(low="orange", high="blue") + theme(axis.text.x = element_text(angle=45))
+  geom_tile() + scale_fill_gradient(low="orange", high="blue4") + theme(axis.text.x = element_text(angle=45))
 
 #ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
 
 ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
 ```
+
 
 ```{r}
 polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", age, "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
@@ -56,8 +67,17 @@ ggplotly(polviews_married, tooltip=c("x", "y", "text"))
 ```
 
 ```{r}
-polviews_age <- ggplot(data=gss_means, aes(x=age, y=as.factor(survey_yr), fill=conrinc_median, text = paste("Sample Size:", counts, "\n Age:", age))) +
-  geom_tile() + scale_fill_gradient(low="orange", high="blue") + theme(axis.text.x = element_text(angle=45))
+polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(dwelown_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", age, "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
+  geom_tile() + theme(axis.text.x = element_text(angle=45))
+
+#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
+
+ggplotly(polviews_married, tooltip=c("x", "y", "text"))
+```
+
+```{r}
+polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
+  geom_tile() + scale_fill_gradient(low="orange", high="blue4") + theme(axis.text.x = element_text(angle=45))
 
 #ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
 
@@ -70,7 +90,6 @@ ggplot(data=gss_means, aes(x=age, y=conrinc_median, colour=as.factor(is2018))) +
 ```
 
 ```{r}
-test_gen <- subset(gss_means, birth_cohort==1950)
-ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) +
-  geom_line()
+test_gen <- subset(gss_means, relative_youth==1)
+ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) + geom_line()
 ```
