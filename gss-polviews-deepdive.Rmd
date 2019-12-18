@@ -39,9 +39,9 @@ knitr::knit_engines$set(python = reticulate::eng_python)
 #write.csv(gss_finalproj, 'C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\fp_gss_1.csv')
 ```
 
-For the sake of sample size, 
+For the sake of sample size, I created a 
 
-![A screenshot of an excel sheet of sample sizes.](images/included_in_survey.PNG)
+![<i>A screenshot of an excel sheet of sample sizes.</i>](images/included_in_survey.PNG)
 
 
 ```{python}
@@ -53,14 +53,17 @@ print(pd.crosstab(gss_frame_1.yearborn_binned5, gss_frame_1.year))
 ```
 
 
-
 ```{r, include = FALSE, message=FALSE}
 gss_means = read_csv('birthcohort_means.csv') #the recoded data set, imported back in for presentation
 gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop this year - sparse data
 ```
 
-```{r, , echo=FALSE, message=FALSE}
-polviews_survey_yr <- ggplot(data=gss_means[gss_means$survey_yr > 1984,], aes(x=age, y=polviews_wmean, colour=as.factor(birth_cohort))) +
+The motivating question for this project was initially this: <b>Do we get more conservative as we get older?</b> That's the sort of thing that seems to be common knowledge, with the line "If you aren’t a liberal when you’re young, you have no heart, but if you aren’t a middle-aged conservative, you have no head" often being quoted [(and misattributed to Winston Churchill)](https://quoteinvestigator.com/2014/02/24/heart-head/) by conservatives. But in 2014 [The Upshot](https://www.nytimes.com/interactive/2014/07/08/upshot/how-the-year-you-were-born-influences-your-politics.html) blog at the New York Times presented a theory of "formative events" shaping the political beliefs of generations, which remain stable over time. Further, it could be that people's views actually don't change that much, but are perceived as more conservative to newer generations which are increasingly liberal.
+
+To test this I took the five-year birth cohort bins and plotted the mean of their answers to the "Political Views" question, which indicates the respodent's self-evaluated place on a seven point scale traveling between "Very Liberal" (1), "Centrist" (4) and "Very Conservative" (7). [These evaluations are fairly coherent and consistent in terms of their meaning](http://www.aapor.org/AAPOR_Main/media/AnnualMeetingProceedings/2015/J2-1-Kiley.pdf).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+polviews_survey_yr <- ggplot(data=gss_means, aes(x=age, y=polviews_wmean, colour=as.factor(birth_cohort))) +
   geom_line() + labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages")
 
 #ggsave('polviews_survey_yr_test1.png', plot = polviews_survey_yr, width = 20, height = 6)
@@ -72,6 +75,10 @@ ggplotly(polviews_survey_yr)  %>%
                                     'Political views of birth cohorts in the GSS at available range of ages',
                                     '</sup>')))
 ```
+
+Well, that seems pretty straightforward.
+
+That individuals are self-reporting a greater rate of conservatism as the move further along in life likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, somewhat less likely in my opinion, people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010.
 
 ```{r, , echo=FALSE, message=FALSE, warning=FALSE}
 polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
