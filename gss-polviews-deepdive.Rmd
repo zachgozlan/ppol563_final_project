@@ -1,5 +1,5 @@
 ---
-title: "Using The GSS to Examine Trends in Political Views & Aging"
+title: "Using The General Social Survey to Examine Trends in Political Views & Aging"
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
@@ -11,9 +11,9 @@ output:
   html_document:
     theme: readable #from bootswatch
 ---
-This project is made with data from the [<b>General Social Survey</b>.](https://gss.norc.org/)
+This project is made with data from the [<b>General Social Survey (GSS)</b>.](https://gss.norc.org/)
 
-While the General Social Survey is not a panel survey, it is both a very long-running survey and one with a large and diverse set of participants. And while the survey contains very little demographic information about the respondents, both “age of respondent” and “year of survey” are included in the results. Because of this, some basic manipulation of the data gets it to a place where we can use <b>birth year</b> as a unit of analysis, and the data begins to resemble time-series data in the aggregate. What I am looking at today is how survey respondents who share or nearly share a year of birth have changed their answers to GSS questions over their life and the life of the survey.
+While the GSS is not a panel survey, it is both a very long-running survey (running regularly since 1972), a very long survey (completing it involves a 90 minute interview) and one with a large and diverse set of participants (approximately 1500 people per year). And while the survey contains very little demographic information about the respondents, both “age of respondent” and “year of survey” are included in the results. Because of this, some basic manipulation of the data gets it to a place where we can use <b>birth year</b> as a unit of analysis, and the data begins to resemble time-series data in the aggregate. What I am looking at today is how survey respondents who share or nearly share a year of birth have changed their answers to GSS questions over their life and the life of the survey.
 
 ```{r, include = FALSE, message=FALSE}
 library(ggplot2) #plotting
@@ -45,7 +45,7 @@ knitr::knit_engines$set(python = reticulate::eng_python) #in case I desperately 
 
 For the sake of sample size, I condensed the data down in two ways:
 <ol>
-  <li>Birth years were condensed into five-year groups: birth cohort '1950', for example, contains everyone born between 1950 and 1954.</li>
+  <li>Birth years were condensed into five-year intervals: birth cohort '1950', for example, contains everyone born between 1950 and 1954; birth cohort '1955' is everyone in 1955, 1956, 1957, 1958, and 1959; and so on.</li>
   <li>Any group with fewer than 50 people taking the survey that year was not included in the below visualizations.</li>
 </ol>
 
@@ -68,7 +68,7 @@ To test this I took the five-year birth cohort bins and plotted the mean of thei
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10}
 polviews_survey_yr <- ggplot(data=gss_means, aes(x=age_wmean, y=polviews_wmean, colour=as.factor(birth_cohort))) +
   ylab("Average Political Standing") +
-  xlab("Age of Respondent")  +
+  xlab("Age of Respondent (Years)")  +
   labs(colour="Birth Year") +
   geom_line(size=0.3) +
   geom_smooth(data=gss_means, aes(color='Overall Trend'), se = FALSE, color="black", lty='longdash') + 
@@ -84,7 +84,7 @@ ggplotly(polviews_survey_yr)  %>%
 
 Well, that seems pretty straightforward, just looking at it.
 
-That individuals are self-reporting a greater rate of conservatism as the move further along in life likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, somewhat less likely in my opinion, people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010, and people holding those views recognize that.
+<b>Individuals are consistently self-reporting a greater rate of conservatism as the move further along in life.</b> This likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, somewhat less likely in my opinion, people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010, and people holding those views recognize that.
 
 But I did notice something interesting poking around this chart: <b>the youngest age cohorts - as of the 2018 survey - are liberal compared to previous generations at the same age, and so far don't seem to be trending leftwards</b> Here's the same data as above, presented as scatterplot and with the 2018 survey results highlighted:
 
@@ -95,7 +95,7 @@ relative_standing <- ggplot(data=gss_means, aes(x=age_wmean_binned, y=polviews_w
   scale_shape_manual(values=c(2, 16), guide=FALSE) +
   scale_color_manual(labels=c("1972-2016", "2018"), values=c('#e69F00','blue4'), name=c('Survey Year')) +
   scale_size_manual(values=c(2,4), guide=FALSE) +
-  xlab('Age Cohort') +
+  xlab('Age in Years (5 Year Bins)') +
   ylab('Average Political Standing') +
   labs(title="Is there something up with today's under-40 set?", subtitle="Age vs. Political Views (2018 Survey Highlighted)")
 
@@ -109,11 +109,11 @@ While the respondents over the age of 40 are mostly in line with similarly-aged 
 <h2>1. Is this trend unusual?</h2>
 <h4>Yes, but it's not unique.</h4>
 
-This trend - a sustained and relatively wide political gap between two age cohorts - is best visualized by the below heatmap: darker colors for more conservative groups, lighter orange for more liberal groups. For the most part, any given cohort's political movement is gradual or a bit noisy, and usually is not too different from the immediately older or younger group; the gap between the current under-40 set and the current over-40 set is much more stark, and seems to have been going since about 2010:
+This trend - a sustained and relatively wide political gap between two age cohorts, and an age cohort having little movement on the political spectrum - is best visualized by the below heatmap: darker colors for more conservative groups, lighter orange for more liberal groups.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10}
 polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, 
-                                           text = paste("Survey Year:", survey_yr, "\nBirth Year:", birth_cohort, "\nPolitical View Score:", polviews_wmean, "\nSample Size:", counts, "\nAge:", round(age_wmean, digits=0)))) +
+                                           text = paste("Survey Year:", survey_yr, "\nBirth Year Group:", birth_cohort, "\nPolitical View Score:", polviews_wmean, "\nSample Size:", counts, "\nAverage Age:", round(age_wmean, digits=0)))) +
   geom_tile() + 
   scale_fill_gradient("Average Political Standing", low="orange", high="blue4", labels=c("More Liberal","", "Moderate", "", "", "More Conservative")) + 
   theme(axis.text.x = element_text(angle=45)) + 
@@ -134,10 +134,12 @@ ggplotly(polviews_age, tooltip=c("text")) %>%
                                     '</sup>')))
 ```
 
-But today's younger adults are not even the most self-reportedly liberal on record; that distinction goes to the generation born between 1945 and 1960, versus their slightly-older peers born before the end of WWII.
+<i><b>How to read this plot:</b> Moving across a single row shows how a birth-year group moved as they aged. Moving down a single column shows the political views of increasingly older groups within the same survey year.</i>
+
+For the most part, any given cohort's political movement is gradual or a bit noisy, and usually is not too different from the immediately older or younger group; the gap between the current under-40 set and the current over-40 set is much more stark, and seems to have been going since about 2010. But today's younger adults are not even the most self-reportedly liberal on record; that distinction goes to the generation born between 1945 and 1960, versus their slightly-older peers born before the end of WWII.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=11}
-polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=polviews_wmean,text = paste("Survey Year:", survey_yr, "\nBirth Year:", birth_cohort, "\nPolitical View Score:", polviews_wmean, "\nSample Size:", counts, "\nAge:", round(age_wmean, digits=0)))) +
+polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=polviews_wmean,text = paste("Survey Year:", survey_yr, "\nBirth Year Group:", birth_cohort, "\nPolitical View Score:", polviews_wmean, "\nSample Size:", counts, "\nAverage Age:", round(age_wmean, digits=0)))) +
   geom_tile() + 
   ylab('') + 
   xlab('Year of Survey') +
@@ -150,7 +152,7 @@ polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=p
 #ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
 
 polview_age <- ggplotly(polviews_age, tooltip=c("text"))  %>%
-  layout(title = list(text = paste0('Political views of age cohorts by survey year',
+  layout(title = list(text = paste0('Political views of relative age cohorts by survey year',
                                     '<br>',
                                     '<sup>',
                                     '',
@@ -158,14 +160,19 @@ polview_age <- ggplotly(polviews_age, tooltip=c("text"))  %>%
 
 polview_age
 ```
+<i>The older generations are consistently more conservative than the younger generations, but youngest generations over time are not equally liberal.</i>
 
 <h2>2. Is this trend permanent?</h2>
 <h4>I don't know.</h4>
 
+The best evidence that the current under-40 set will eventually blend in with their elders is history: the gap between the early boomers and their immediate seniors would not have even been noticed if the GSS began asking the political views question in 1978 instead of 1974. But the breadth of the GSS allows us to look at additional context that one <i>could</i> read as things being different now.
+
 ```{r, echo=FALSE, message=FALSE, fig.width=10}
-polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Survey Year:", survey_yr, "\nBirth Year:", birth_cohort, "\nSample Size:", counts, "\nAge:", round(age_wmean, digits=0), "\nMarriage%:", been_married_wmean*100))) +
+polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Survey Year:", survey_yr, "\nBirth Year Group:", birth_cohort, "\nSample Size:", counts, "\nAverage Age:", round(age_wmean, digits=0), "\nMarriage%:", been_married_wmean*100))) +
   scale_fill_brewer(name='% Ever Married', palette="Spectral") +
   geom_tile() +
+  ylab('Year of Birth') +
+  xlab('Year of Survey') +
   theme(axis.text.x = element_text(angle=45), legend.position="bottom") +
   labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages")
 
@@ -177,6 +184,8 @@ ggplotly(polviews_married, tooltip=c("text")) %>%
                                     '</sup>')))
 ```
 
+
+
 ```{r, echo=FALSE, message=FALSE}
 polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(dwelown_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", round(age_wmean, digits=0),  "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
   geom_tile() + theme(axis.text.x = element_text(angle=45))
@@ -185,6 +194,8 @@ polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as
 
 ggplotly(polviews_married, tooltip=c("x", "y", "text"))
 ```
+
+They are delaying these milestones, not skipping them outright?
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", round(age_wmean, digits=0)))) +
