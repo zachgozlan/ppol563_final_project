@@ -1,72 +1,71 @@
 ---
-title: "gss-polviews-dive"
+title: "Using The GSS to Examine Trends in Political Views & Aging"
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
  encoding=encoding,
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 author: "Zach Gozlan"
-date: "December 13, 2019"
+date: "December 20, 2019"
 output: 
   html_document:
     theme: readable #from bootswatch
 ---
+This project is made with data from the [<b>General Social Survey</b>.](https://gss.norc.org/)
 
-The General Social Survey is not a panel survey. However, it is both a very long-running with a large and diverse set of participants, and while the survey contains nearly no personally identifying information some basic demographic information is included in the data. Because both “age of respondent” and “year of survey” are provided, some basic manipulation of the data gets it to a place where we can use <b>birth year</b> as a unit of analysis.
+While the General Social Survey is not a panel survey, it is both a very long-running survey and one with a large and diverse set of participants. And while the survey contains nearly no personally identifying information, some basic demographic information is included in the data which may be interesting. Because both “age of respondent” and “year of survey” are provided, for example, some basic manipulation of the data gets it to a place where we can use <b>birth year</b> as a unit of analysis, and the data begins to resemble time-series data in the aggregate.
 
 ```{r, include = FALSE, message=FALSE}
-library(ggplot2)
-library(plotly)
-require(tidyverse)
+library(ggplot2) #plotting
+library(plotly) #INTERACTIVE plotting
+require(tidyverse) #piping, etc.
 require(dplyr)
 library(foreign)
 library(haven)
 library(plyr)
-library(heatmaply)
-library(reticulate)
+library(heatmaply) #trying to solve some error message issues
+library(reticulate) #using python
+library(gridExtra) #positioning
 
-knitr::knit_engines$set(python = reticulate::eng_python)
+
+knitr::knit_engines$set(python = reticulate::eng_python) #in case I desperately need a python something
 ```
 
 ```{r, include = FALSE, message=FALSE}
-#gss <- read_csv('C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\full_gss.csv') #this is a version of the full gss data set that was converted to csv
+#THIS IS THE CODE THAT MANIPULATES THE ORGINIAL GSS DATA, DON'T NEED IT RIGHT NOW
+#gss <- read_csv('full_gss.csv') #this is a version of the full gss data set that was converted to csv
 ```
 
 ```{r, include = FALSE, message=FALSE}
 #variables that were needed from this project were pulled out, exported, and sent to python for easy manipulation
 #myvars2 <- c("year", "age", "sex", "polviews", "happy", "conrinc", "wtssall", "natrace", "life", "trust", "dwelown", "marital") #for final project
 #gss_finalproj <- gss[myvars2]
-#write.csv(gss_finalproj, 'C:\\Users\\Zach Gozlan\\DataScience\\Data Viz Project\\fp_gss_1.csv')
+#write.csv(gss_finalproj, 'fp_gss_1.csv')
 ```
 
 For the sake of sample size, I created a 
 
-![<i>A screenshot of an excel sheet of sample sizes.</i>](images/included_in_survey.PNG)
-
-
-```{python}
-import pandas as pd
-gss_frame_1 = pd.read_csv('fp_gss_1.csv')
-gss_frame_1['year_of_birth'] = gss_frame_1.year - gss_frame_1.age
-gss_frame_1['yearborn_binned5'] = (gss_frame_1.year_of_birth // 5) * 5 #rounds year born to nearest 5-year interval
-print(pd.crosstab(gss_frame_1.yearborn_binned5, gss_frame_1.year))
-```
-
+![<i>A screenshot of an excel sheet of sample sizes. Acceptably large cohorts are highlighted to demonstrate the 'shape' of the available data.</i>](images/included_in_survey.PNG)
 
 ```{r, include = FALSE, message=FALSE}
 gss_means = read_csv('birthcohort_means.csv') #the recoded data set, imported back in for presentation
 gss_means = gss_means[!gss_means$survey_yr == 1983,] #realized i should drop this year - sparse data
 ```
 
-The motivating question for this project was initially this: <b>Do we get more conservative as we get older?</b> That's the sort of thing that seems to be common knowledge, with the line "If you aren’t a liberal when you’re young, you have no heart, but if you aren’t a middle-aged conservative, you have no head" often being quoted [(and misattributed to Winston Churchill)](https://quoteinvestigator.com/2014/02/24/heart-head/) by conservatives. But in 2014 [The Upshot](https://www.nytimes.com/interactive/2014/07/08/upshot/how-the-year-you-were-born-influences-your-politics.html) blog at the New York Times presented a theory of "formative events" shaping the political beliefs of generations, which remain stable over time. Further, it could be that people's views actually don't change that much, but are perceived as more conservative to newer generations which are increasingly liberal.
+The motivating question for this project was initially this: <b>Do we get more conservative as we get older?</b>
 
-To test this I took the five-year birth cohort bins and plotted the mean of their answers to the "Political Views" question, which indicates the respodent's self-evaluated place on a seven point scale traveling between "Very Liberal" (1), "Centrist" (4) and "Very Conservative" (7). [These evaluations are fairly coherent and consistent in terms of their meaning](http://www.aapor.org/AAPOR_Main/media/AnnualMeetingProceedings/2015/J2-1-Kiley.pdf).
+That's the sort of thing that seems to be common knowledge, anyway, with the line "If you aren’t a liberal when you’re young, you have no heart, but if you aren’t a middle-aged conservative, you have no head" often being quoted [(and misattributed to Winston Churchill)](https://quoteinvestigator.com/2014/02/24/heart-head/) by conservatives. But in 2014 [The Upshot](https://www.nytimes.com/interactive/2014/07/08/upshot/how-the-year-you-were-born-influences-your-politics.html) blog at the New York Times presented a theory of "formative events" shaping the political beliefs of generations, which remain stable over time. Further, it could be that people's views actually don't change that much, but are perceived as more conservative to newer generations which are increasingly liberal.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+To test this I took the five-year birth cohort bins and plotted the mean of their answers to the "Political Views" question, which indicates the respodent's self-evaluated place on a seven point scale traveling between "Very Liberal" (1), "Moderate" (4) and "Very Conservative" (7). [These evaluations are fairly coherent and consistent in terms of their meaning](http://www.aapor.org/AAPOR_Main/media/AnnualMeetingProceedings/2015/J2-1-Kiley.pdf).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10}
 polviews_survey_yr <- ggplot(data=gss_means, aes(x=age, y=polviews_wmean, colour=as.factor(birth_cohort))) +
-  geom_line() + labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages")
-
-#ggsave('polviews_survey_yr_test1.png', plot = polviews_survey_yr, width = 20, height = 6)
+  ylab("Mean Political Standing") +
+  xlab("Age of Respondent")  +
+  labs(colour="Birth Year") +
+  geom_line(size=0.3) +
+  geom_smooth(data=gss_means, aes(color='Overall Trend'), se = FALSE, color="black", lty='longdash') + 
+  labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages") #see writeup
 
 ggplotly(polviews_survey_yr)  %>%
   layout(title = list(text = paste0('Do we get more conservative as we get older?',
@@ -76,27 +75,44 @@ ggplotly(polviews_survey_yr)  %>%
                                     '</sup>')))
 ```
 
-Well, that seems pretty straightforward.
+Well, that seems pretty straightforward, just looking at it.
 
-That individuals are self-reporting a greater rate of conservatism as the move further along in life likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, somewhat less likely in my opinion, people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010.
+That individuals are self-reporting a greater rate of conservatism as the move further along in life likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, somewhat less likely in my opinion, people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010, and people holding those views recognize that.
 
-```{r, , echo=FALSE, message=FALSE, warning=FALSE}
-polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", age))) +
-  geom_tile() + scale_fill_gradient(low="orange", high="blue4") + theme(axis.text.x = element_text(angle=45))
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10}
+polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=polviews_wmean, 
+                                           text = paste("Survey Year:", survey_yr, "\nBirth Year:", birth_cohort, "\nPolitical View Score:", polviews_wmean, "\nSample Size:", counts, "\nAge:", age))) +
+  geom_tile() + 
+  scale_fill_gradient("Average Political Standing", low="orange", high="blue4", labels=c("More Liberal","", "Moderate", "", "", "More Conservative")) + 
+  theme(axis.text.x = element_text(angle=45)) + 
+  xlab("Year of Survey") +
+  ylab("Year of Birth") +
+  labs(color="Political View Score") +
+  labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages") #see documentaiton
 
-#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
+#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6) 
 
-ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
+ggplotly(polviews_age, tooltip=c("text")) %>%
+  layout(title = list(text = paste0('Do we get more conservative as we get older?',
+                                    '<br>',
+                                    '<sup>',
+                                    'Political views of birth cohorts in the GSS in each survey',
+                                    '</sup>')))
 ```
 
+```{r, echo=FALSE, message=FALSE, fig.width=10}
+polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Survey Year:", survey_yr, "\nBirth Year:", birth_cohort, "\nSample Size:", counts, "\nAge:", age, "\nMarriage%:", been_married_wmean*100))) +
+  scale_fill_brewer(name='% Ever Married', palette="Spectral") +
+  geom_tile() +
+  theme(axis.text.x = element_text(angle=45), legend.position="bottom") +
+  labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages")
 
-```{r, , echo=FALSE, message=FALSE}
-polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", age, "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
-  geom_tile() + theme(axis.text.x = element_text(angle=45))
-
-#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
-
-ggplotly(polviews_married, tooltip=c("x", "y", "text"))
+ggplotly(polviews_married, tooltip=c("text")) %>%
+  layout(title = list(text = paste0('Potential Generational Difference: Marriage',
+                                    '<br>',
+                                    '<sup>',
+                                    '% of Respondents Married, Divorced, or Widowed, by Survey & Age Cohort',
+                                    '</sup>')))
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -114,7 +130,7 @@ polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=p
 
 #ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
 
-ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
+polview_age <- ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -130,3 +146,9 @@ ggplot(data=gss_means, aes(x=age, y=conrinc_median, colour=as.factor(is2018))) +
 test_gen <- subset(gss_means, relative_youth==1)
 ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) + geom_line()
 ```
+
+<center>
+```{r ,fig.width=20, fig.height=5, echo=FALSE, message=FALSE}
+subplot(polviews_married, polview_age, widths = c(.5,.5))
+```
+</center>
