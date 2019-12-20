@@ -84,9 +84,9 @@ ggplotly(polviews_survey_yr)  %>%
 
 Well, that seems pretty straightforward, just looking at it.
 
-<b>Individuals are consistently self-reporting a greater rate of conservatism as the move further along in life.</b> This likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, somewhat less likely in my opinion, people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010, and people holding those views recognize that.
+<b>Individuals are consistently self-reporting a greater rate of conservatism as the move further along in life.</b> This likely means one of two things: One, people change their beliefs over time and actually do get more conservative, or two, (somewhat less likely in my opinion) people as they get older perceive the world around them as shifting leftwards. That is, the same set of views that would have been called liberal in 1980 are conservative in 2010, and people holding those views recognize that.
 
-But I did notice something interesting poking around this chart: <b>the youngest age cohorts - as of the 2018 survey - are liberal compared to previous generations at the same age, and so far don't seem to be trending leftwards</b> Here's the same data as above, presented as scatterplot and with the 2018 survey results highlighted:
+But I did notice something interesting poking around this chart: <b>the youngest age cohorts - as of the 2018 survey - are liberal compared to previous generations at the same age, and so far don't seem to be trending conservative.</b> Here's the same data as above, presented as scatterplot and with the 2018 survey results highlighted:
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.align = 'center'}
 relative_standing <- ggplot(data=gss_means, aes(x=age_wmean_binned, y=polviews_wmean,
@@ -106,7 +106,7 @@ relative_standing
 
 While the respondents over the age of 40 are mostly in line with similarly-aged adults from previous surveys, respondents in their 30s are more liberal than any previous cohort, basically no different from the political leanings of (also relatively liberal) under-30 respondents. This brings me to the main two questions of this project:
 
-<h2>1. Is this trend unusual?</h2>
+<h2>Is this trend unusual?</h2>
 <h4>Yes, but it's not unique.</h4>
 
 This trend - a sustained and relatively wide political gap between two age cohorts, and an age cohort having little movement on the political spectrum - is best visualized by the below heatmap: darker colors for more conservative groups, lighter orange for more liberal groups.
@@ -133,7 +133,7 @@ ggplotly(polviews_age, tooltip=c("text")) %>%
 ```
 
 <blockquote style="border: 2px solid #666; padding: 2px; background-color: #ccc;"><font size="2">
-<i><b>How to read this plot:</b> Moving across a single row shows how a birth-year group moved as they aged. Moving down a single column shows the political views of increasingly older groups within the same survey year.</i></font></blockquote>
+<i><b>How to read this plot:</b> Moving across a single row shows how a birth-year group moved politically as they aged, with the color explained by the key. Moving down a single column shows the political views of increasingly older groups within the same survey year.</i></font></blockquote>
 
 For the most part, any given cohort's political movement is gradual or a bit noisy, and usually is not too different from the immediately older or younger group; the gap between the current under-40 set and the current over-40 set is much more stark, and seems to have been going since about 2010. But today's younger adults are not even the most self-reportedly liberal on record; that distinction goes to the generation born between 1945 and 1960, versus their slightly-older peers born before the end of WWII.
 
@@ -161,7 +161,7 @@ polview_age
 ```
 <i>The older generations are consistently more conservative than the younger generations, but youngest generations over time are not equally liberal.</i>
 
-<h2>2. Is this trend permanent?</h2>
+<h2>Is this trend permanent?</h2>
 <h4>Probably not, but it's going on longer than usual.</h4>
 
 The best evidence that the current under-40 set will eventually blend in with their elders is history: the gap between the early boomers and their immediate seniors would not have even been noticed if the GSS began asking the political views question in 1978 instead of 1974, and other than that the history of this question (and what is presented above) doesn't promise much stability. In addition, I think The Upshot article linked above presents a better explanation than I can with my available data with regards to why individuals initially sort to a particular ideology, although the idea of a five-year-old having meaningful political leanings - which is what is implied by their visualizations - fundamentally ridiculous:
@@ -211,7 +211,7 @@ ggplotly(polviews_dwelown, tooltip=c("text"))  %>%
                                     '</sup>')))
 ```
 
-And considering we're basically talking about indicators of income here anyway, here is where the 2018 
+And considering we're basically talking about indicators of income here anyway, here is where the 2018 class of respondents compare to their earlier peers in terms of reported income:
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.align = 'center'}
 relative_standing2 <- ggplot(data=gss_means, aes(x=age_wmean_binned, y=conrinc_median,
@@ -222,15 +222,30 @@ relative_standing2 <- ggplot(data=gss_means, aes(x=age_wmean_binned, y=conrinc_m
   scale_size_manual(values=c(2,4), guide=FALSE) +
   xlab('Age in Years (5 Year Bins)') +
   ylab('Median Income (Inflation-Adjusted to Yr 2000 $)') +
-  labs(title="Is there something up with today's under-40 set?", subtitle="Age vs. Inflation-Adjusted Income (2018 Survey Highlighted)")
+  labs(title="Income in the Context of Previous Generations", subtitle="Age vs. Inflation-Adjusted Income (2018 Survey Highlighted)")
 
 relative_standing2
 ```
-<i>Individuals between the ages of 20 and 35 are relatively broke, but 36-40 year olds - who fit the pattern described above - seem to be doing fine.</i>
 
-The early boomers were assimilating with their older peers by their early 30s; the oldest cohorts of the current trend (i.e., the oldest millennials) would be around ten years older than that if they began to follow the trend again in the 2020 GSS.
+This chart presents a divergence within that currently-liberal group: individuals between the ages of 20 and 35 are relatively broke, but 36-40 year olds - who otherwise fit the patterns described above - seem to be doing fine. What's also curious about this is that while today's younger adults are relatively broke compared to earlier surveyed people of the same age, today's adults between the ages of 55 and 75 are among the highest earners when compared to earlier individuals of the same age. <b>These would be the same people who were in the liberal young adult cohorts highlighted above.</b>
 
-<h2>Conclusions</h2>
+<h2>Conclusion</h2>
 
-This "delay" 
+The early boomers were assimilating with their older peers by their early 30s; the oldest cohorts of the current trend (i.e., the oldest millennials) would be around ten years older than that if they began to follow the trend again in the 2020 GSS. While there is nothing I present here that indicates that this group will buck the pattern of growing more conservative as they get older, it is possible that this delay of major life milestones which associate with greater conservatism explains some of the reason why this movement has been delayed, and why future generations who (for whatever reason) begin in an especially liberal place may delay their conservatism even longer.
 
+
+<h2>Data Sources & Other Resources</h2>
+
+The [General Social Survey](https://gss.norc.org/) is run by [NORC at the University of Chicago](https://www.norc.org/Pages/default.aspx), a non-partisan research institution. The data file itself - containing all GSS responses since 1972 - is available [here](https://gss.norc.org/getthedata/Pages/Home.aspx), and the codebook explaining the responses is available [here](https://gss.norc.org/get-documentation). Note that both files are massive - the codebook is nearly 4,000 pages, and each observation in the data file includes a space for every question ever asked in the GSS - and it is recommended that one use the [GSS Data Explorer](https://gssdataexplorer.norc.org/) for easier exploration of the data.
+
+Tutorials used in the creation of this page include the following:
+
+<ul>
+  <li>[Github and R Studio](https://resources.github.com/whitepapers/github-and-rstudio/) from Github's resources page</li>
+  <li>[Subtitles with ggplotly](https://datascott.com/blog/subtitles-with-ggplotly/) by Scott Davis</li>
+  <li>[Learn More About Pandas By Building and Using a Weighted Average Function](https://pbpython.com/weighted-average.html) by Chris Moffitt for Practical Business Python</li>
+</ul>
+
+This page was created as a final project for [PPOL 563: Data visualization for Data Science](https://www.coursicle.com/georgetown/courses/PPOL/563/), instructed by [Taylor Corbett](https://twitter.com/data4d?lang=en) at Georgetown University's [McCourt School of Public Policy.](https://mccourt.georgetown.edu/)
+
+The theme for this page is [readable](https://bootswatch.com/3/readable/) from Bootswatch.
