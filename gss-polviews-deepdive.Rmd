@@ -124,8 +124,6 @@ polviews_age <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohor
   geom_segment(aes(x = 0.5, y = 1942.5, xend = 4.5, yend = 1942.5)) +
   labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages") #see documentaiton
 
-#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6) 
-
 ggplotly(polviews_age, tooltip=c("text")) %>%
   layout(title = list(text = paste0('Do we get more conservative as we get older?',
                                     '<br>',
@@ -169,10 +167,10 @@ polview_age
 The best evidence that the current under-40 set will eventually blend in with their elders is history: the gap between the early boomers and their immediate seniors would not have even been noticed if the GSS began asking the political views question in 1978 instead of 1974, and other than that the history of this question (and what is presented above) doesn't promise much stability. In addition, I think The Upshot article linked above presents a better explanation than I can with my available data with regards to why individuals initially sort to a particular ideology, although the idea of a five-year-old having meaningful political leanings - which is what is implied by their visualizations - fundamentally ridiculous:
 
 
-![https://www.nytimes.com/interactive/2014/07/08/upshot/how-the-year-you-were-born-influences-your-politics.html](images/upshot_screenshot.png)
+![<i>https://www.nytimes.com/interactive/2014/07/08/upshot/how-the-year-you-were-born-influences-your-politics.html</i>](images/upshot_screenshot.png)
 
 
-But one theory I am interested in investigating further within the GSS is the trend of life milestones being delayed compared to earlier generations.
+But one theory I am interested in investigating further within the GSS is the trend of life milestones being delayed compared to earlier generations. For example, marriage, [which is understood to link to conservatism,](https://en.wikipedia.org/wiki/Marriage_gap) has been happening later and later with more recent cohorts:
 
 ```{r, echo=FALSE, message=FALSE, fig.width=10}
 polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Survey Year:", survey_yr, "\nBirth Year Group:", birth_cohort, "\nSample Size:", counts, "\nAverage Age:", round(age_wmean, digits=0), "\nMarriage%:", been_married_wmean*100))) +
@@ -190,43 +188,49 @@ ggplotly(polviews_married, tooltip=c("text")) %>%
                                     '% of Respondents Married, Divorced, or Widowed, by Survey Year & Age Cohort',
                                     '</sup>')))
 ```
+<i>Nearly 50% of respondents born in the early 1950s had been married at least once by age 22, compared to approximately 7% of respondents born in the early 1990s at the same phase of life.</i>
 
+The GSS also has collected useful statistics regarding homeownership since the late eighties; those numbers produce a similar, albeit less stark, pattern:
 
+```{r, echo=FALSE, message=FALSE, fig.width=10}
+polviews_dwelown <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(dwelown_wmean_binned),
+                                                                            text = paste("Survey Year:", survey_yr, "\nBirth Year Group:", birth_cohort,
+                                                                            "\nSample Size:", counts, "\nAverage Age:", round(age_wmean, digits=0), "\nHomeowner%:", dwelown_wmean*100))) + 
+  scale_fill_brewer("%Homeowner", palette="Spectral") +
+  geom_tile() + 
+  ylab('Year of Birth') +
+  xlab('Year of Survey') +
+  theme(axis.text.x = element_text(angle=45)) +
+  labs(title="Do we get more conservative as we get older?", caption="Political views of birth cohorts in the GSS \n at available range of ages")
 
-```{r, echo=FALSE, message=FALSE}
-polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(dwelown_wmean_binned), text = paste("Sample Size:", counts, "\n Age:", round(age_wmean, digits=0),  "\n Marriage%:", been_married_wmean))) + scale_fill_brewer(palette="Spectral") +
-  geom_tile() + theme(axis.text.x = element_text(angle=45))
-
-#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
-
-ggplotly(polviews_married, tooltip=c("x", "y", "text"))
+ggplotly(polviews_dwelown, tooltip=c("text"))  %>%
+  layout(title = list(text = paste0('Potential Generational Difference: Homeownership',
+                                    '<br>',
+                                    '<sup>',
+                                    '% of Respondents Living in Home They Own by Survey Year & Age Cohort',
+                                    '</sup>')))
 ```
 
-This is not an explanation for why these cohorts began in a more liberal place, just why they may stay there. 
-They are delaying these milestones, not skipping them outright?
+And considering we're basically talking about indicators of income here anyway, here is where the 2018 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=polviews_wmean, text = paste("Sample Size:", counts, "\n Age:", round(age_wmean, digits=0)))) +
-  geom_tile() + scale_fill_gradient(low="orange", high="blue4") + theme(axis.text.x = element_text(angle=45))
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.align = 'center'}
+relative_standing2 <- ggplot(data=gss_means, aes(x=age_wmean_binned, y=conrinc_median,
+                                                color=as.factor(is2018), shape=as.factor(is2018), size=as.factor(is2018))) +
+  geom_point() +
+  scale_shape_manual(values=c(2, 16), guide=FALSE) +
+  scale_color_manual(labels=c("1972-2016", "2018"), values=c('#e69F00','blue4'), name=c('Survey Year')) +
+  scale_size_manual(values=c(2,4), guide=FALSE) +
+  xlab('Age in Years (5 Year Bins)') +
+  ylab('Median Income (Inflation-Adjusted to Yr 2000 $)') +
+  labs(title="Is there something up with today's under-40 set?", subtitle="Age vs. Inflation-Adjusted Income (2018 Survey Highlighted)")
 
-#ggsave('polviews_age_test1.png', plot = polviews_age, width = 10, height = 6)
-
-polview_age <- ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
+relative_standing2
 ```
+<i>Individuals between the ages of 20 and 35 are relatively broke, but 36-40 year olds - who fit the pattern described above - seem to be doing fine.</i>
 
 The early boomers were assimilating with their older peers by their early 30s; the oldest cohorts of the current trend (i.e., the oldest millennials) would be around ten years older than that if they began to follow the trend again in the 2020 GSS.
 
-<h3>Conclusions</h3>
+<h2>Conclusions</h2>
 
 This "delay" 
 
-```{r, echo=FALSE, message=FALSE}
-test_gen <- subset(gss_means, relative_youth==1)
-ggplot(data=test_gen, aes(x=survey_yr, y=polviews_wmean)) + geom_line()
-```
-
-<center>
-```{r ,fig.width=20, fig.height=5, echo=FALSE, message=FALSE, fig.align = 'center'}
-subplot(polviews_married, polview_age, widths = c(.5,.5))
-```
-</center>
