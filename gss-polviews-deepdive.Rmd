@@ -134,7 +134,8 @@ ggplotly(polviews_age, tooltip=c("text")) %>%
                                     '</sup>')))
 ```
 
-<i><b>How to read this plot:</b> Moving across a single row shows how a birth-year group moved as they aged. Moving down a single column shows the political views of increasingly older groups within the same survey year.</i>
+<blockquote style="border: 2px solid #666; padding: 2px; background-color: #ccc;"><font size="2">
+<i><b>How to read this plot:</b> Moving across a single row shows how a birth-year group moved as they aged. Moving down a single column shows the political views of increasingly older groups within the same survey year.</i></font></blockquote>
 
 For the most part, any given cohort's political movement is gradual or a bit noisy, and usually is not too different from the immediately older or younger group; the gap between the current under-40 set and the current over-40 set is much more stark, and seems to have been going since about 2010. But today's younger adults are not even the most self-reportedly liberal on record; that distinction goes to the generation born between 1945 and 1960, versus their slightly-older peers born before the end of WWII.
 
@@ -163,9 +164,15 @@ polview_age
 <i>The older generations are consistently more conservative than the younger generations, but youngest generations over time are not equally liberal.</i>
 
 <h2>2. Is this trend permanent?</h2>
-<h4>I don't know.</h4>
+<h4>Probably not, but it's going on longer than usual.</h4>
 
-The best evidence that the current under-40 set will eventually blend in with their elders is history: the gap between the early boomers and their immediate seniors would not have even been noticed if the GSS began asking the political views question in 1978 instead of 1974. But the breadth of the GSS allows us to look at additional context that one <i>could</i> read as things being different now.
+The best evidence that the current under-40 set will eventually blend in with their elders is history: the gap between the early boomers and their immediate seniors would not have even been noticed if the GSS began asking the political views question in 1978 instead of 1974, and other than that the history of this question (and what is presented above) doesn't promise much stability. In addition, I think The Upshot article linked above presents a better explanation than I can with my available data with regards to why individuals initially sort to a particular ideology, although the idea of a five-year-old having meaningful political leanings - which is what is implied by their visualizations - fundamentally ridiculous:
+
+
+![https://www.nytimes.com/interactive/2014/07/08/upshot/how-the-year-you-were-born-influences-your-politics.html](images/upshot_screenshot.png)
+
+
+But one theory I am interested in investigating further within the GSS is the trend of life milestones being delayed compared to earlier generations.
 
 ```{r, echo=FALSE, message=FALSE, fig.width=10}
 polviews_married <- ggplot(data=gss_means, aes(x=as.factor(survey_yr), y=birth_cohort, fill=as.factor(been_married_wmean_binned), text = paste("Survey Year:", survey_yr, "\nBirth Year Group:", birth_cohort, "\nSample Size:", counts, "\nAverage Age:", round(age_wmean, digits=0), "\nMarriage%:", been_married_wmean*100))) +
@@ -195,6 +202,7 @@ polviews_married <- ggplot(data=gss_means[gss_means$survey_yr > 1988,], aes(x=as
 ggplotly(polviews_married, tooltip=c("x", "y", "text"))
 ```
 
+This is not an explanation for why these cohorts began in a more liberal place, just why they may stay there. 
 They are delaying these milestones, not skipping them outright?
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -206,9 +214,11 @@ polviews_age <- ggplot(data=gss_means, aes(x=survey_yr, y=relative_youth, fill=p
 polview_age <- ggplotly(polviews_age, tooltip=c("x", "y", "fill", "text"))
 ```
 
-<p style="font-family: times, serif; font-size:11pt; font-style:italic">
-    test of html formatting
-</p>
+The early boomers were assimilating with their older peers by their early 30s; the oldest cohorts of the current trend (i.e., the oldest millennials) would be around ten years older than that if they began to follow the trend again in the 2020 GSS.
+
+<h3>Conclusions</h3>
+
+This "delay" 
 
 ```{r, echo=FALSE, message=FALSE}
 test_gen <- subset(gss_means, relative_youth==1)
