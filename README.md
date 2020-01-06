@@ -8,4 +8,6 @@ Zach Gozlan's final project for PPOL 563: Data Visualization. This repo contains
   <li>Additional images referenced by the page in linked folders</li>
 </ul>
 
+The final project is viewable here: https://zachgozlan.github.io/ppol563_final_project/
+
 A longer technical summary of the project is available by request.
